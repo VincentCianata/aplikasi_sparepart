@@ -9,24 +9,24 @@ bp = Blueprint('api', __name__)
 @bp.route('/auth/register', methods=['POST'])
 def register_user():
     data = request.get_json()
-    if User.query.filter_by(username=data['username']).first():
+    if User.query.filter_by(email=data['email']).first():
         return jsonify({"message": "User already exists"}), 400
     
     hashed_password = generate_password_hash(data['password'])
-    user = User(username=data['username'], password=hashed_password)
+    user = User(email=data['email'], password=hashed_password)
     db.session.add(user)
     db.session.commit()
-    return jsonify({"message": "User berhasil terdaftar"}), 201
+    return jsonify({"message": "User registered successfully"}), 201
 
 @bp.route('/auth/login', methods=['POST'])
 def login_user():
     data = request.get_json()
-    user = User.query.filter_by(username=data['username']).first()
+    user = User.query.filter_by(email=data['email']).first()
     if not user or not check_password_hash(user.password, data['password']):
-        return jsonify({"message": "Username atau password salah"}), 401
+        return jsonify({"message": "Email atau password salah"}), 401
     
     token = create_access_token(identity=user.id)
-    return jsonify({"message": "Login berhasil", "access_token": token}), 200
+    return jsonify({"message": "Login successful", "access_token": token}), 200
 
 @bp.route('/spareparts', methods=['GET'])
 def get_spare_parts():

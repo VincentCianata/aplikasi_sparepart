@@ -1,25 +1,24 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'register_page.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'login_page.dart';
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+class RegisterPage extends StatefulWidget {
+  const RegisterPage({super.key});
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  State<RegisterPage> createState() => _RegisterPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _RegisterPageState extends State<RegisterPage> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   String message = "";
 
-  Future<void> _login() async {
+  Future<void> _register() async {
     try {
       final response = await http.post(
-        Uri.parse("http://10.0.2.2:5000/api/auth/login"),
+        Uri.parse("http://10.0.2.2:5000/api/auth/register"),
         headers: {"Content-Type": "application/json"},
         body: jsonEncode({
           "email": emailController.text,
@@ -33,14 +32,14 @@ class _LoginPageState extends State<LoginPage> {
         message = data["message"] ?? "";
       });
 
-      if (response.statusCode == 200 && data["message"] == "Login successful") {
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('access_token', data['access_token']);
-        Navigator.pushReplacementNamed(context, '/home');
+      if (response.statusCode == 201 &&
+          data["message"] == "User registered successfully") {
+        Navigator.pushReplacementNamed(context, '/');
       }
     } catch (e) {
       setState(() {
         message = "Error: $e";
+        print("Error during registration: $e");
       });
     }
   }
@@ -62,12 +61,12 @@ class _LoginPageState extends State<LoginPage> {
             child: Column(
               children: [
                 const Text(
-                  "Login",
+                  "Register",
                   style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 30),
                 Card(
-                  elevation: 8,
+                  elevation: 6,
                   margin: const EdgeInsets.symmetric(horizontal: 24),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
@@ -90,8 +89,8 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                         const SizedBox(height: 20),
                         ElevatedButton(
-                          onPressed: _login,
-                          child: const Text("Login"),
+                          onPressed: _register,
+                          child: const Text("Register"),
                         ),
                       ],
                     ),
@@ -102,18 +101,18 @@ class _LoginPageState extends State<LoginPage> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text("Don't have an account? "),
+                    const Text("Already have an account? "),
                     GestureDetector(
                       onTap: () {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const RegisterPage(),
+                            builder: (context) => const LoginPage(),
                           ),
                         );
                       },
                       child: const Text(
-                        "Sign up",
+                        "Login",
                         style: TextStyle(
                           color: Colors.blue,
                           fontWeight: FontWeight.bold,
