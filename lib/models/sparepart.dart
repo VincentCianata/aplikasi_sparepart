@@ -6,6 +6,8 @@ class SparePart {
   final double price;
   final bool stock;
   final String image;
+  final String description;
+  final String category;
 
   SparePart({
     required this.id,
@@ -13,6 +15,8 @@ class SparePart {
     required this.price,
     required this.stock,
     required this.image,
+    required this.description,
+    required this.category,
   });
 
   factory SparePart.fromJson(Map<String, dynamic> json) {
@@ -22,6 +26,8 @@ class SparePart {
       price: json['price'],
       stock: json['stock'] as bool,
       image: json['image_url'],
+      description: json['description'].toString(),
+      category: json['category'].toString(),
     );
   }
 

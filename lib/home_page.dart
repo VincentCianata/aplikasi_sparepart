@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'models/sparepart.dart';
-import 'widgets/sparepart_card.dart';
+import '../models/sparepart.dart';
+import '../widgets/sparepart_card.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
@@ -37,7 +37,17 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Spare Part Store")),
+      appBar: AppBar(
+        title: const Text("Spare Part Store"),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.shopping_cart),
+            onPressed: () {
+              Navigator.pushNamed(context, '/cart');
+            },
+          ),
+        ],
+      ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : GridView.builder(
@@ -48,7 +58,17 @@ class _HomePageState extends State<HomePage> {
               ),
               itemCount: spareParts.length,
               itemBuilder: (context, index) {
-                return SparePartCard(sparePart: spareParts[index]);
+                final sparePart = spareParts[index];
+                return GestureDetector(
+                  onTap: () {
+                    Navigator.pushNamed(
+                      context,
+                      '/details',
+                      arguments: sparePart,
+                    );
+                  },
+                  child: SparePartCard(sparePart: sparePart),
+                );
               },
             ),
     );

@@ -31,7 +31,7 @@ def login_user():
 @bp.route('/spareparts', methods=['GET'])
 def get_spare_parts():
     parts = SparePart.query.all()
-    return jsonify([{"id": p.id, "name": p.name, "price": p.price, "stock": p.stock, "image_url": p.image_url} for p in parts]), 200
+    return jsonify([{"id": p.id, "name": p.name, "price": p.price, "stock": p.stock, "image_url": p.image_url, "description": p.description, "category": p.category} for p in parts]), 200
 
 @bp.route('/history', methods=['GET'])
 @jwt_required()
