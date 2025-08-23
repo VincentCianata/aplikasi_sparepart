@@ -9,10 +9,10 @@ class SparePart(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(120), nullable=False)
     price = db.Column(db.Float, nullable=False)
-    stock = db.Column(db.Integer, nullable=False)
-    image_url = db.Column(db.String(200), nullable=True)
+    stock = db.Column(db.Boolean, default=True)
+    image_url = db.Column(db.String(200), nullable=False)
     description = db.Column(db.String(500), nullable=True)
-    category = db.Column(db.String(50), nullable=True)
+    category = db.Column(db.String(50), nullable=False)
 
 class Transaction(db.Model):
     id = db.Column(db.Integer, primary_key=True)

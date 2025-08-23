@@ -4,3 +4,5 @@ __pycache__/
 instance/
 .mypy_cache/
 .pytest_cache/
+static
+migrations

@@ -39,7 +39,7 @@ class _RegisterPageState extends State<RegisterPage> {
     } catch (e) {
       setState(() {
         message = "Error: $e";
-        print("Error during registration: $e");
+        // print("Error during registration: $e");
       });
     }
   }
