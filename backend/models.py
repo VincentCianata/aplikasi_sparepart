@@ -32,3 +32,4 @@ class Cart(db.Model):
 
     user = db.relationship('User', backref=db.backref('cart_items', lazy=True))
     spare_part = db.relationship('SparePart', backref=db.backref('cart_items', lazy=True))
+    spare_part = db.relationship('SparePart', backref=db.backref('transactions', lazy=True))

@@ -158,7 +158,7 @@ class _DetailsPageState extends State<DetailsPage> {
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(12),
                 child: Image.network(
-                  widget.sparepart.fullImageUrl,
+                  widget.sparepart.image,
                   fit: BoxFit.cover,
                   errorBuilder: (context, error, stackTrace) =>
                       const Icon(Icons.image_not_supported, size: 100),
@@ -166,11 +166,13 @@ class _DetailsPageState extends State<DetailsPage> {
               ),
             ),
             const SizedBox(height: 16),
+
             Text(
               widget.sparepart.name,
               style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
+
             Text(
               formatCurrency.format(widget.sparepart.price),
               style: const TextStyle(
@@ -179,14 +181,18 @@ class _DetailsPageState extends State<DetailsPage> {
                 color: Colors.redAccent,
               ),
             ),
+
             const SizedBox(height: 24),
+
             Text(
               widget.sparepart.description,
+
               style: TextStyle(color: Colors.grey[700]),
             ),
           ],
         ),
       ),
+
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(16),
         child: Row(

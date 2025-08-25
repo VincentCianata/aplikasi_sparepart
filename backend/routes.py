@@ -22,18 +22,11 @@ def register_user():
 def login_user():
     data = request.get_json()
     user = User.query.filter_by(email=data['email']).first()
-    
     if not user or not check_password_hash(user.password, data['password']):
         return jsonify({"message": "Email atau password salah"}), 401
-
-    token = create_access_token(identity=str(user.id))
     
-    return jsonify({
-        "message": "Login successful",
-        "user_id": user.id,
-        "access_token": token
-    }), 200
-
+    token = create_access_token(identity=str(user.id))
+    return jsonify({"message": "Login successful", "user_id":user.id, "access_token": token}), 200
 
 @bp.route('/spareparts', methods=['GET'])
 def get_spare_parts():
@@ -46,8 +39,6 @@ def get_transaction_history():
     user_id = get_jwt_identity()
     transactions = Transaction.query.filter_by(user_id=user_id).all()
     return jsonify([{"id": t.id, "spare_part_id": t.spare_part_id, "quantity": t.quantity, "total_price": t.total_price} for t in transactions]), 200
-
-
 
 @bp.route('/cart/<int:user_id>/<int:spare_part_id>', methods=['POST'])
 @jwt_required()
@@ -99,4 +90,3 @@ def clear_cart(user_id):
     db.session.commit()
     token = create_access_token(identity=str(user_id))
     return jsonify({"message": "Cart cleared", "access_token" : token}), 200
-

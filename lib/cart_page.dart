@@ -1,4 +1,3 @@
-// Cart Page
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -6,7 +5,7 @@ import '../models/cart.dart';
 import '../services/cart_service.dart';
 
 class CartPage extends StatefulWidget {
-  final int? userId; // Make userId nullable
+  final int? userId;
   const CartPage({super.key, required this.userId});
 
   @override
@@ -28,10 +27,7 @@ class _CartPageState extends State<CartPage> {
   }
 
   Future<void> _initializeCartFuture() async {
-    // Check if the user ID is available before proceeding.
     if (widget.userId == null) {
-      // If the user ID is null, set the future to an empty list
-      // and show a message to the user.
       setState(() {
         _cartFuture = Future.value([]);
       });
@@ -46,7 +42,6 @@ class _CartPageState extends State<CartPage> {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('access_token');
 
-    // Make sure the token is available as well
     if (token == null) {
       setState(() {
         _cartFuture = Future.value([]);
@@ -59,7 +54,6 @@ class _CartPageState extends State<CartPage> {
       return;
     }
 
-    // Now, with both userId and token, fetch the cart.
     setState(() {
       _cartFuture = CartService.fetchCart(widget.userId!, token);
     });

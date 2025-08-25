@@ -16,6 +16,7 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _isLoading = false;
+
   String message = "";
 
   Future<void> _login() async {
@@ -38,9 +39,12 @@ class _LoginPageState extends State<LoginPage> {
 
       final data = jsonDecode(response.body);
 
+      setState(() {
+        message = data["message"] ?? "";
+      });
+
       if (response.statusCode == 200 && data["message"] == "Login successful") {
         final prefs = await SharedPreferences.getInstance();
-
         await prefs.setInt('user_id', data['user_id']);
         await prefs.setString('access_token', data['access_token']);
 
@@ -53,6 +57,7 @@ class _LoginPageState extends State<LoginPage> {
         setState(() {
           message = data["message"] ?? "Login gagal. Periksa email/password";
         });
+        Navigator.pushReplacementNamed(context, '/home');
       }
     } catch (e) {
       setState(() {
@@ -135,7 +140,7 @@ class _LoginPageState extends State<LoginPage> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text("Already have an account? "),
+                    const Text("Don't have an account? "),
                     GestureDetector(
                       onTap: () {
                         Navigator.pushNamed(context, '/register');

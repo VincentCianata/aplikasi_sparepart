@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'config.dart';
 import 'login_page.dart';
 import 'register_page.dart';
 import 'home_page.dart';
@@ -8,6 +6,8 @@ import 'details.dart';
 import 'cart_page.dart';
 import 'checkout_page.dart';
 import '../models/sparepart.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'config.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -40,6 +40,7 @@ class MyApp extends StatelessWidget {
               ModalRoute.of(context)!.settings.arguments as SparePart;
           return DetailsPage(sparepart: sparePart);
         },
+
         '/cart': (context) {
           final userId = AppConfig.currentUserId;
           if (userId == null) {

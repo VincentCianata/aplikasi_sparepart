@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:shared_preferences/shared_preferences.dart'; // Import this
+import 'package:shared_preferences/shared_preferences.dart';
 import '../models/cart.dart';
 import '../services/cart_service.dart';
 import '../config.dart';
@@ -29,17 +29,15 @@ class _CheckoutPageState extends State<CheckoutPage> {
   Future<void> _initializeCartFuture() async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('access_token');
-    if (token != null) {
+    if (token != null && AppConfig.currentUserId != null) {
       setState(() {
         _cartFuture = CartService.fetchCart(AppConfig.currentUserId!, token);
       });
     } else {
-      // Handle case where token is not available
       setState(() {
         _cartFuture = Future.value([]);
       });
       if (mounted) {
-        // You might want to navigate to the login screen or show an error
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Authentication token not found.")),
         );
@@ -107,6 +105,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
           return Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Expanded(
                   child: ListView.builder(
@@ -149,12 +148,11 @@ class _CheckoutPageState extends State<CheckoutPage> {
                       style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
-                        color: Colors.redAccent,
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 16),
                 ElevatedButton.icon(
                   onPressed: _handlePayment,
                   icon: const Icon(Icons.payment),

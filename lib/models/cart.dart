@@ -14,7 +14,6 @@ class CartItem {
     required this.image,
     required this.quantity,
   });
-
   factory CartItem.fromJson(Map<String, dynamic> json) {
     return CartItem(
       id: json['id'],
