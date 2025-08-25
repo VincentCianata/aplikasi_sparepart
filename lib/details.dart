@@ -1,8 +1,9 @@
+import 'package:aplikasi_sparepart/services/cart_service.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../models/sparepart.dart';
-import '../models/cart.dart';
-import 'cart_page.dart';
+import 'config.dart';
 
 class DetailsPage extends StatefulWidget {
   final SparePart sparepart;
@@ -19,6 +20,11 @@ class _DetailsPageState extends State<DetailsPage> {
     symbol: 'Rp ',
     decimalDigits: 0,
   );
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   void _showQuantitySelector(bool isBuyNow) {
     int quantity = 1;
@@ -70,19 +76,45 @@ class _DetailsPageState extends State<DetailsPage> {
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: () {
-                        for (int i = 0; i < quantity; i++) {
-                          Cart.addItem(widget.sparepart);
+                      onPressed: () async {
+                        final userId = AppConfig.currentUserId;
+                        if (userId == null) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text("Silakan login terlebih dahulu"),
+                            ),
+                          );
+                          return;
                         }
+
+                        final prefs = await SharedPreferences.getInstance();
+                        final token = prefs.getString('access_token');
+
+                        final success = await CartService.addToCart(
+                          userId,
+                          widget.sparepart.id,
+                          quantity,
+                          token: token,
+                        );
+
                         Navigator.pop(context);
 
-                        if (isBuyNow) {
-                          Navigator.pushNamed(context, '/checkout');
+                        if (success) {
+                          if (isBuyNow) {
+                            Navigator.pushNamed(context, '/checkout');
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text("Ditambahkan ke keranjang"),
+                                duration: Duration(seconds: 2),
+                              ),
+                            );
+                          }
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
-                              content: Text("Ditambahkan ke keranjang"),
-                              duration: Duration(seconds: 2),
+                              content: Text("Gagal menambahkan ke keranjang"),
+                              backgroundColor: Colors.red,
                             ),
                           );
                         }
@@ -111,10 +143,7 @@ class _DetailsPageState extends State<DetailsPage> {
           IconButton(
             icon: const Icon(Icons.shopping_cart),
             onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const CartPage()),
-              );
+              Navigator.pushNamed(context, '/cart');
             },
           ),
         ],
@@ -129,7 +158,7 @@ class _DetailsPageState extends State<DetailsPage> {
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(12),
                 child: Image.network(
-                  widget.sparepart.image,
+                  widget.sparepart.fullImageUrl,
                   fit: BoxFit.cover,
                   errorBuilder: (context, error, stackTrace) =>
                       const Icon(Icons.image_not_supported, size: 100),
@@ -137,13 +166,11 @@ class _DetailsPageState extends State<DetailsPage> {
               ),
             ),
             const SizedBox(height: 16),
-
             Text(
               widget.sparepart.name,
               style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
-
             Text(
               formatCurrency.format(widget.sparepart.price),
               style: const TextStyle(
@@ -152,18 +179,14 @@ class _DetailsPageState extends State<DetailsPage> {
                 color: Colors.redAccent,
               ),
             ),
-
             const SizedBox(height: 24),
-
             Text(
               widget.sparepart.description,
-
               style: TextStyle(color: Colors.grey[700]),
             ),
           ],
         ),
       ),
-
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(16),
         child: Row(

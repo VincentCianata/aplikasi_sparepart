@@ -1,15 +1,20 @@
+// Cart Page
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../models/cart.dart';
+import '../services/cart_service.dart';
 
 class CartPage extends StatefulWidget {
-  const CartPage({super.key});
+  final int? userId; // Make userId nullable
+  const CartPage({super.key, required this.userId});
 
   @override
   State<CartPage> createState() => _CartPageState();
 }
 
 class _CartPageState extends State<CartPage> {
+  late Future<List<CartItem>> _cartFuture;
   final formatCurrency = NumberFormat.currency(
     locale: 'id_ID',
     symbol: 'Rp ',
@@ -17,82 +22,107 @@ class _CartPageState extends State<CartPage> {
   );
 
   @override
+  void initState() {
+    super.initState();
+    _initializeCartFuture();
+  }
+
+  Future<void> _initializeCartFuture() async {
+    // Check if the user ID is available before proceeding.
+    if (widget.userId == null) {
+      // If the user ID is null, set the future to an empty list
+      // and show a message to the user.
+      setState(() {
+        _cartFuture = Future.value([]);
+      });
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text("User not logged in.")));
+      }
+      return;
+    }
+
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('access_token');
+
+    // Make sure the token is available as well
+    if (token == null) {
+      setState(() {
+        _cartFuture = Future.value([]);
+      });
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Authentication token not found.")),
+        );
+      }
+      return;
+    }
+
+    // Now, with both userId and token, fetch the cart.
+    setState(() {
+      _cartFuture = CartService.fetchCart(widget.userId!, token);
+    });
+  }
+
+  void _refreshCart() {
+    _initializeCartFuture();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text("Keranjang")),
-      body: Cart.items.isEmpty
-          ? const Center(child: Text("Keranjang masih kosong"))
-          : ListView.builder(
-              padding: const EdgeInsets.all(8),
-              itemCount: Cart.items.length,
-              itemBuilder: (context, index) {
-                final cartItem = Cart.items[index];
-                return Card(
-                  margin: const EdgeInsets.symmetric(vertical: 6),
-                  child: ListTile(
-                    leading: Image.network(
-                      cartItem.sparepart.image,
-                      width: 60,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) =>
-                          const Icon(Icons.image_not_supported),
-                    ),
-                    title: Text(
-                      cartItem.sparepart.name,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    subtitle: Text(
-                      "${formatCurrency.format(cartItem.sparepart.price)} x ${cartItem.quantity}\n"
-                      "= ${formatCurrency.format(cartItem.sparepart.price * cartItem.quantity)}",
-                    ),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.remove_circle_outline),
-                          onPressed: () {
-                            setState(() {
-                              Cart.removeItem(cartItem.sparepart);
-                            });
-                          },
-                        ),
-                        Text(
-                          "${cartItem.quantity}",
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.add_circle_outline),
-                          onPressed: () {
-                            setState(() {
-                              Cart.addItem(cartItem.sparepart);
-                            });
-                          },
-                        ),
-                      ],
-                    ),
+      body: FutureBuilder<List<CartItem>>(
+        future: _cartFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (snapshot.hasError) {
+            return Center(child: Text("Error: ${snapshot.error}"));
+          }
+          final items = snapshot.data ?? [];
+          if (items.isEmpty) {
+            return const Center(child: Text("Keranjang masih kosong"));
+          }
+          return ListView.builder(
+            itemCount: items.length,
+            itemBuilder: (context, index) {
+              final item = items[index];
+              return Card(
+                child: ListTile(
+                  leading: Image.network(
+                    item.image,
+                    width: 60,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) =>
+                        const Icon(Icons.image_not_supported),
                   ),
-                );
-              },
-            ),
-      bottomNavigationBar: Cart.items.isNotEmpty
-          ? Padding(
-              padding: const EdgeInsets.all(16),
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  textStyle: const TextStyle(fontSize: 18),
+                  title: Text(item.name),
+                  subtitle: Text(
+                    "${formatCurrency.format(item.price)} x ${item.quantity}\n"
+                    "= ${formatCurrency.format(item.price * item.quantity)}",
+                  ),
+                  trailing: IconButton(
+                    icon: const Icon(Icons.delete),
+                    onPressed: () async {
+                      final prefs = await SharedPreferences.getInstance();
+                      final token = prefs.getString('access_token');
+                      await CartService.removeFromCart(
+                        widget.userId!,
+                        item.sparepartId,
+                        token: token,
+                      );
+                      _refreshCart();
+                    },
+                  ),
                 ),
-                onPressed: () {
-                  Navigator.pushNamed(context, '/checkout');
-                },
-                child: Text(
-                  "Checkout - ${formatCurrency.format(Cart.totalPrice)}",
-                ),
-              ),
-            )
-          : null,
+              );
+            },
+          );
+        },
+      ),
     );
   }
 }

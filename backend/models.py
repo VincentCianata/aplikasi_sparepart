@@ -23,3 +23,12 @@ class Transaction(db.Model):
 
     user = db.relationship('User', backref=db.backref('transactions', lazy=True))
     spare_part = db.relationship('SparePart', backref=db.backref('transactions', lazy=True))
+
+class Cart(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    spare_part_id = db.Column(db.Integer, db.ForeignKey('spare_part.id'), nullable=False)
+    quantity = db.Column(db.Integer, nullable=False)
+
+    user = db.relationship('User', backref=db.backref('cart_items', lazy=True))
+    spare_part = db.relationship('SparePart', backref=db.backref('cart_items', lazy=True))

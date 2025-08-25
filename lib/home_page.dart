@@ -1,3 +1,4 @@
+import '../config.dart';
 import 'package:flutter/material.dart';
 import '../models/sparepart.dart';
 import '../widgets/sparepart_card.dart';
@@ -34,6 +35,7 @@ class _HomePageState extends State<HomePage> {
     fetchSpareParts();
   }
 
+  // The corrected build method in _HomePageState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -43,7 +45,22 @@ class _HomePageState extends State<HomePage> {
           IconButton(
             icon: const Icon(Icons.shopping_cart),
             onPressed: () {
-              Navigator.pushNamed(context, '/cart');
+              // Check if a user is logged in
+              if (AppConfig.currentUserId != null) {
+                // User is logged in, navigate to cart
+                Navigator.pushNamed(
+                  context,
+                  '/cart',
+                  arguments: AppConfig.currentUserId,
+                );
+              } else {
+                // User is not logged in, show a message
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Please log in to view your cart.'),
+                  ),
+                );
+              }
             },
           ),
         ],
