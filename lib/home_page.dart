@@ -1,3 +1,4 @@
+import '../config.dart';
 import 'package:flutter/material.dart';
 import '../models/sparepart.dart';
 import '../widgets/sparepart_card.dart';
@@ -43,7 +44,19 @@ class _HomePageState extends State<HomePage> {
           IconButton(
             icon: const Icon(Icons.shopping_cart),
             onPressed: () {
-              Navigator.pushNamed(context, '/cart');
+              if (AppConfig.currentUserId != null) {
+                Navigator.pushNamed(
+                  context,
+                  '/cart',
+                  arguments: AppConfig.currentUserId,
+                );
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Please log in to view your cart.'),
+                  ),
+                );
+              }
             },
           ),
         ],
