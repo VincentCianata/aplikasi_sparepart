@@ -6,6 +6,7 @@ class User(db.Model):
     password = db.Column(db.Text, nullable=False)
 
 class SparePart(db.Model):
+    __tablename__ = "spare_part"
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(120), nullable=False)
     price = db.Column(db.Float, nullable=False)
@@ -32,4 +33,3 @@ class Cart(db.Model):
 
     user = db.relationship('User', backref=db.backref('cart_items', lazy=True))
     spare_part = db.relationship('SparePart', backref=db.backref('cart_items', lazy=True))
-    spare_part = db.relationship('SparePart', backref=db.backref('transactions', lazy=True))

@@ -5,13 +5,13 @@ class ApiService {
   static const String baseUrl = "http://10.0.2.2:5000/api";
 
   static Future<Map<String, dynamic>?> login(
-    String username,
+    String email,
     String password,
   ) async {
     final response = await http.post(
-      Uri.parse("$baseUrl/login"),
+      Uri.parse("$baseUrl/auth/login"),
       headers: {"Content-Type": "application/json"},
-      body: jsonEncode({"username": username, "password": password}),
+      body: jsonEncode({"email": email, "password": password}),
     );
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
@@ -20,13 +20,13 @@ class ApiService {
   }
 
   static Future<Map<String, dynamic>?> register(
-    String username,
+    String email,
     String password,
   ) async {
     final response = await http.post(
-      Uri.parse("$baseUrl/register"),
+      Uri.parse("$baseUrl/auth/register"),
       headers: {"Content-Type": "application/json"},
-      body: jsonEncode({"username": username, "password": password}),
+      body: jsonEncode({"email": email, "password": password}),
     );
     if (response.statusCode == 200) {
       return jsonDecode(response.body);

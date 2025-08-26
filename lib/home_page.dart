@@ -17,13 +17,26 @@ class _HomePageState extends State<HomePage> {
   bool isLoading = true;
 
   Future<void> fetchSpareParts() async {
-    final response = await http.get(
-      Uri.parse("http://10.0.2.2:5000/api/spareparts"),
-    );
-    if (response.statusCode == 200) {
-      final List<dynamic> data = jsonDecode(response.body);
+    try {
+      final response = await http.get(
+        Uri.parse("http://10.0.2.2:5000/api/spareparts"),
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+        setState(() {
+          spareParts = data.map((json) => SparePart.fromJson(json)).toList();
+          isLoading = false;
+        });
+      } else {
+        setState(() {
+          spareParts = [];
+          isLoading = false;
+        });
+      }
+    } catch (e) {
       setState(() {
-        spareParts = data.map((json) => SparePart.fromJson(json)).toList();
+        spareParts = [];
         isLoading = false;
       });
     }

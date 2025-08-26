@@ -48,10 +48,12 @@ class _CheckoutPageState extends State<CheckoutPage> {
   Future<void> _handlePayment() async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('access_token');
+
     final success = await CartService.clearCart(
       AppConfig.currentUserId!,
       token,
     );
+
     if (success) {
       if (mounted) {
         showDialog(

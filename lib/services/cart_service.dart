@@ -50,6 +50,22 @@ class CartService {
     }
   }
 
+  static Future<bool> updateCartQuantity(
+    int userId,
+    int sparepartId,
+    int delta, {
+    String? token,
+  }) async {
+    final url = Uri.parse("$baseUrl/cart/$userId/$sparepartId");
+    final headers = {
+      "Content-Type": "application/json",
+      if (token != null) "Authorization": "Bearer $token",
+    };
+    final body = jsonEncode({"delta": delta});
+    final response = await http.patch(url, headers: headers, body: body);
+    return response.statusCode == 200;
+  }
+
   static Future<bool> removeFromCart(
     int userId,
     int sparepartId, {
@@ -65,7 +81,7 @@ class CartService {
   }
 
   static Future<bool> clearCart(int userId, String? token) async {
-    final url = Uri.parse("${AppConfig.baseUrl}cart/clear/$userId");
+    final url = Uri.parse("$baseUrl/cart/clear/$userId");
     final headers = {
       'Content-Type': 'application/json',
       if (token != null) 'Authorization': 'Bearer $token',

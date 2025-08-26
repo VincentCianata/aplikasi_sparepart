@@ -3,6 +3,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_jwt_extended import jwt_required, get_jwt_identity, create_access_token
 from app import db
 from models import User, SparePart, Transaction, Cart
+import sys
 
 bp = Blueprint('api', __name__)
 
@@ -60,15 +61,36 @@ def add_to_cart(user_id, spare_part_id):
 @jwt_required()
 def get_cart(user_id):
     cart_items = Cart.query.filter_by(user_id=user_id).all()
-    token = create_access_token(identity=str(user_id))
     return jsonify([
         {
             "id": item.id,
-            "spare_part_id": item.spare_part_id,
+            "sparepart_id": item.spare_part_id,
+            "name": item.spare_part.name if item.spare_part else None,
+            "price": item.spare_part.price if item.spare_part else None,
+            "image": item.spare_part.image_url if item.spare_part else None,
             "quantity": item.quantity,
-            "access_token": token
-        } for item in cart_items
+        }
+        for item in cart_items
     ]), 200
+
+@bp.route('/cart/<int:user_id>/<int:spare_part_id>', methods=['PATCH'])
+@jwt_required()
+def update_cart_item(user_id, spare_part_id):
+    data = request.get_json()
+    delta = data.get('delta', 0)
+    cart_item = Cart.query.filter_by(user_id=user_id, spare_part_id=spare_part_id).first()
+
+    if not cart_item:
+        if delta > 0:
+            cart_item = Cart(user_id=user_id, spare_part_id=spare_part_id, quantity=delta)
+            db.session.add(cart_item)
+    else:
+        cart_item.quantity += delta
+        if cart_item.quantity <= 0:
+            db.session.delete(cart_item)
+
+    db.session.commit()
+    return jsonify({"message": "Cart updated"}), 200
 
 
 @bp.route('/cart/<int:user_id>/<int:spare_part_id>', methods=['DELETE'])
