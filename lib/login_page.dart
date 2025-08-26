@@ -51,13 +51,12 @@ class _LoginPageState extends State<LoginPage> {
         AppConfig.currentUserId = data['user_id'];
 
         if (mounted) {
-          Navigator.pushReplacementNamed(context, '/home');
+          Navigator.pushReplacementNamed(context, '/main_nav');
         }
       } else {
         setState(() {
           message = data["message"] ?? "Login gagal. Periksa email/password";
         });
-        Navigator.pushReplacementNamed(context, '/home');
       }
     } catch (e) {
       setState(() {

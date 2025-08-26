@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/cart.dart';
 import '../services/cart_service.dart';
 import 'checkout_page.dart';
+import 'config.dart';
 
 class CartPage extends StatefulWidget {
   final int? userId;
@@ -26,22 +27,30 @@ class _CartPageState extends State<CartPage> {
   @override
   void initState() {
     super.initState();
+    _checkLogin();
+  }
+
+  Future<void> _checkLogin() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('access_token');
+    final userId = prefs.getInt('user_id');
+
+    if (token == null || userId == null) {
+      if (mounted) {
+        Navigator.pushReplacementNamed(context, '/');
+      }
+      return;
+    }
+
+    AppConfig.currentUserId = userId;
     _loadCart();
   }
 
   Future<void> _loadCart() async {
-    if (widget.userId == null) {
-      setState(() {
-        _cartItems = [];
-        _isLoading = false;
-      });
-      return;
-    }
-
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('access_token');
+    final items = await CartService.fetchCart(AppConfig.currentUserId!, token);
 
-    final items = await CartService.fetchCart(widget.userId!, token);
     setState(() {
       _cartItems = items;
       _isLoading = false;
@@ -54,13 +63,13 @@ class _CartPageState extends State<CartPage> {
     final item = _cartItems[index];
 
     await CartService.updateCartQuantity(
-      widget.userId!,
+      AppConfig.currentUserId!,
       item.sparepartId,
       delta,
       token: token,
     );
 
-    await _loadCart();
+    _loadCart();
   }
 
   Future<void> _deleteItem(int index) async {
@@ -69,12 +78,12 @@ class _CartPageState extends State<CartPage> {
     final item = _cartItems[index];
 
     await CartService.removeFromCart(
-      widget.userId!,
+      AppConfig.currentUserId!,
       item.sparepartId,
       token: token,
     );
 
-    await _loadCart();
+    _loadCart();
   }
 
   int get totalPrice => _cartItems.fold(

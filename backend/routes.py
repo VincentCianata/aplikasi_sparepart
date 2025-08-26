@@ -112,3 +112,31 @@ def clear_cart(user_id):
     db.session.commit()
     token = create_access_token(identity=str(user_id))
     return jsonify({"message": "Cart cleared", "access_token" : token}), 200
+
+@bp.route('/checkout', methods=['POST'])
+@jwt_required()
+def checkout():
+    user_id = int(get_jwt_identity())
+    cart_items = Cart.query.filter_by(user_id=user_id).all()
+    if not cart_items:
+        return jsonify({"message": "Cart is empty"}), 400
+
+    items_json = [
+        {
+            "spare_part_id": item.sparepart_id,
+            "name": item.sparepart.name,
+            "price": item.sparepart.price,
+            "quantity": item.quantity
+        } for item in cart_items
+    ]
+
+    total_amount = sum(item['price'] * item['quantity'] for item in items_json)
+
+    transaction = Transaction(user_id=user_id, items=items_json, total_amount=total_amount)
+    db.session.add(transaction)
+
+    for item in cart_items:
+        db.session.delete(item)
+
+    db.session.commit()
+    return jsonify({"message": "Checkout successful"}), 200

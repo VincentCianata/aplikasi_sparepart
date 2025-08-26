@@ -1,4 +1,5 @@
 from app import db
+from sqlalchemy.dialects.postgresql import JSON
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -15,15 +16,17 @@ class SparePart(db.Model):
     description = db.Column(db.String(500), nullable=True)
     category = db.Column(db.String(50), nullable=False)
 
+
+
 class Transaction(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    spare_part_id = db.Column(db.Integer, db.ForeignKey('spare_part.id'), nullable=False)
-    quantity = db.Column(db.Integer, nullable=False)
-    total_price = db.Column(db.Float, nullable=False)
+    items = db.Column(JSON, nullable=False)
+    total_amount = db.Column(db.Float, nullable=False)
+    created_at = db.Column(db.DateTime, default=db.func.now())
 
     user = db.relationship('User', backref=db.backref('transactions', lazy=True))
-    spare_part = db.relationship('SparePart', backref=db.backref('transactions', lazy=True))
+
 
 class Cart(db.Model):
     id = db.Column(db.Integer, primary_key=True)
