@@ -1,4 +1,5 @@
 import 'package:aplikasi_sparepart/services/cart_service.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -157,11 +158,11 @@ class _DetailsPageState extends State<DetailsPage> {
               aspectRatio: 1,
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(12),
-                child: Image.network(
-                  widget.sparepart.image,
+                child: CachedNetworkImage(
+                  imageUrl: widget.sparepart.fullImageUrl,
                   fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) =>
-                      const Icon(Icons.image_not_supported, size: 100),
+                  errorWidget: (context, url, error) =>
+                      const Icon(Icons.image_not_supported),
                 ),
               ),
             ),

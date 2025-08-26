@@ -27,6 +27,16 @@ class Transaction(db.Model):
 
     user = db.relationship('User', backref=db.backref('transactions', lazy=True))
 
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "user_id": self.user_id,
+            "items": self.items,
+            "total_amount": self.total_amount,
+            "created_at": self.created_at.isoformat()
+        }
+
+
 
 class Cart(db.Model):
     id = db.Column(db.Integer, primary_key=True)

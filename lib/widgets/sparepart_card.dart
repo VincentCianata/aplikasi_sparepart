@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/sparepart.dart';
 import 'package:intl/intl.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class SparePartCard extends StatelessWidget {
   final SparePart sparePart;
@@ -19,11 +20,11 @@ class SparePartCard extends StatelessWidget {
       child: Column(
         children: [
           Expanded(
-            child: Image.network(
-              sparePart.fullImageUrl,
+            child: CachedNetworkImage(
+              imageUrl: sparePart.fullImageUrl,
               fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) =>
-                  const Icon(Icons.image),
+
+              errorWidget: (context, url, error) => const Icon(Icons.image),
             ),
           ),
           Text(

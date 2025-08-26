@@ -1,7 +1,7 @@
+import 'package:aplikasi_sparepart/admin_page.dart';
+import 'package:aplikasi_sparepart/transaction_history.dart';
 import 'package:flutter/material.dart';
 import 'home_page.dart';
-import 'cart_page.dart';
-import 'checkout_page.dart';
 import '../config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -21,10 +21,10 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
   void initState() {
     super.initState();
     _pages.addAll([
-      const HomePage(), // Home tab
-      const PlaceholderWidget(title: "Transaction History"), // Transaction tab
-      const PlaceholderWidget(title: "Admin Page"), // Admin tab
-      AccountPage(), // Account tab
+      const HomePage(),
+      const TransactionHistoryPage(),
+      const AdminPage(),
+      AccountPage(),
     ]);
   }
 
@@ -54,7 +54,7 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
 }
 
 class AccountPage extends StatelessWidget {
-  AccountPage({super.key});
+  const AccountPage({super.key});
 
   Future<void> _logout(BuildContext context) async {
     final prefs = await SharedPreferences.getInstance();

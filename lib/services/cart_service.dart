@@ -1,17 +1,16 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:aplikasi_sparepart/config.dart';
+import '../config.dart';
 import '../models/cart.dart';
 
 class CartService {
-  static const String baseUrl = "http://10.0.2.2:5000/api";
   static Future<List<CartItem>> fetchCart(int userId, String? token) async {
     final headers = {
       "Content-Type": "application/json",
       if (token != null) "Authorization": "Bearer $token",
     };
     final response = await http.get(
-      Uri.parse("$baseUrl/cart/$userId"),
+      Uri.parse("${AppConfig.baseUrl}/api/cart/$userId"),
       headers: headers,
     );
     if (response.statusCode == 200) {
@@ -27,7 +26,7 @@ class CartService {
     int quantity, {
     String? token,
   }) async {
-    final url = Uri.parse("$baseUrl/cart/$userId/$sparepartId");
+    final url = Uri.parse("${AppConfig.baseUrl}/api/cart/$userId/$sparepartId");
 
     final headers = {
       "Content-Type": "application/json",
@@ -56,7 +55,7 @@ class CartService {
     int delta, {
     String? token,
   }) async {
-    final url = Uri.parse("$baseUrl/cart/$userId/$sparepartId");
+    final url = Uri.parse("${AppConfig.baseUrl}/api/cart/$userId/$sparepartId");
     final headers = {
       "Content-Type": "application/json",
       if (token != null) "Authorization": "Bearer $token",
@@ -71,7 +70,7 @@ class CartService {
     int sparepartId, {
     String? token,
   }) async {
-    final url = Uri.parse("$baseUrl/cart/$userId/$sparepartId");
+    final url = Uri.parse("${AppConfig.baseUrl}/api/cart/$userId/$sparepartId");
     final headers = {
       "Content-Type": "application/json",
       if (token != null) "Authorization": "Bearer $token",
@@ -81,7 +80,7 @@ class CartService {
   }
 
   static Future<bool> clearCart(int userId, String? token) async {
-    final url = Uri.parse("$baseUrl/cart/clear/$userId");
+    final url = Uri.parse("${AppConfig.baseUrl}/api/cart/clear/$userId");
     final headers = {
       'Content-Type': 'application/json',
       if (token != null) 'Authorization': 'Bearer $token',

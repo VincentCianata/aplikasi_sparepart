@@ -1,15 +1,14 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import '../config.dart';
 
 class ApiService {
-  static const String baseUrl = "http://10.0.2.2:5000/api";
-
   static Future<Map<String, dynamic>?> login(
     String email,
     String password,
   ) async {
     final response = await http.post(
-      Uri.parse("$baseUrl/auth/login"),
+      Uri.parse("${AppConfig.baseUrl}/api/auth/login"),
       headers: {"Content-Type": "application/json"},
       body: jsonEncode({"email": email, "password": password}),
     );
@@ -24,7 +23,7 @@ class ApiService {
     String password,
   ) async {
     final response = await http.post(
-      Uri.parse("$baseUrl/auth/register"),
+      Uri.parse("${AppConfig.baseUrl}/api/auth/register"),
       headers: {"Content-Type": "application/json"},
       body: jsonEncode({"email": email, "password": password}),
     );
@@ -35,7 +34,9 @@ class ApiService {
   }
 
   static Future<List<dynamic>> fetchSpareparts() async {
-    final response = await http.get(Uri.parse("$baseUrl/spareparts"));
+    final response = await http.get(
+      Uri.parse("${AppConfig.baseUrl}/api/spareparts"),
+    );
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
     }

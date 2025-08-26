@@ -123,9 +123,9 @@ def checkout():
 
     items_json = [
         {
-            "spare_part_id": item.sparepart_id,
-            "name": item.sparepart.name,
-            "price": item.sparepart.price,
+            "spare_part_id": item.spare_part_id,
+            "name": item.spare_part.name,
+            "price": item.spare_part.price,
             "quantity": item.quantity
         } for item in cart_items
     ]
@@ -140,3 +140,16 @@ def checkout():
 
     db.session.commit()
     return jsonify({"message": "Checkout successful"}), 200
+
+@bp.route('/transactions', methods=['GET'])
+@jwt_required()
+def user_transactions():
+    user_id = int(get_jwt_identity())
+    transactions = Transaction.query.filter_by(user_id=user_id).all()
+    return jsonify([t.to_dict() for t in transactions]), 200
+
+@bp.route('/transactions/all', methods=['GET'])
+@jwt_required()
+def all_transactions():
+    transactions = Transaction.query.all()
+    return jsonify([t.to_dict() for t in transactions]), 200

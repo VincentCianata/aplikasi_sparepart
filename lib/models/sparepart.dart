@@ -31,5 +31,5 @@ class SparePart {
     );
   }
 
-  String get fullImageUrl => AppConfig.baseUrl + image;
+  String get fullImageUrl => '${AppConfig.baseUrl}/$image';
 }
